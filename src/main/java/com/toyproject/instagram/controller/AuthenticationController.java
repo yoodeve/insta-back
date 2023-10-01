@@ -8,10 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.HashMap;
@@ -41,8 +38,15 @@ public class AuthenticationController {
 
     @PostMapping("/login")
     public ResponseEntity<?> signin(@RequestBody SigninReqDto signinReqDto) {
-        userService.signinUser(signinReqDto);
-
-        return ResponseEntity.ok(null);
+        String accessToken = userService.signinUser(signinReqDto);
+        System.out.println(accessToken);
+        return ResponseEntity.ok().body(accessToken);
     }
+
+    @GetMapping("/authenticate")
+    public ResponseEntity<?> authenticate(@RequestHeader(value = "Authorization") String token) {
+        System.out.println("토큰>>>>"+token);
+        return ResponseEntity.ok(userService.authenticate(token));
+    }
+
 }
