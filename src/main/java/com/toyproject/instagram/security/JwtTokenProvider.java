@@ -4,6 +4,7 @@ import com.toyproject.instagram.entity.User;
 import com.toyproject.instagram.repository.UserMapper;
 import com.toyproject.instagram.service.PrincipalDetailService;
 import com.toyproject.instagram.service.UserService;
+import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
@@ -23,28 +24,38 @@ import java.util.Date;
 public class JwtTokenProvider {
     private final Key key;
     private final PrincipalDetailService principalDetailService;
+    private final UserMapper userMapper;
 
     // @autowired는 IoC컨테이너에서 객체를 자동 주입
     // @value는 어플리케이션.yml에서 변수 데이터를 자동 주입
-    public JwtTokenProvider(@Value("${jwt.secret}") String secret, @Autowired PrincipalDetailService principalDetailService) {
+    public JwtTokenProvider(@Value("${jwt.secret}") String secret, @Autowired PrincipalDetailService principalDetailService, @Autowired UserMapper userMapper) {
         key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
         this.principalDetailService = principalDetailService;
+        this.userMapper = userMapper;
     }
 
     // jwt 토큰을 생성하는 로직
     public String generateAccessToken(Authentication authentication) {
-        String accessToken = null;
         PrincipalUser principalUser = (PrincipalUser) authentication.getPrincipal();
 
         Date tokenExpiresDate = new Date(new Date().getTime() + (1000 * 60 * 60 * 24)); // 하루
-        accessToken = Jwts.builder()
-                .setSubject("AccessToken")
-                .claim("username", principalUser.getUsername())
-                .setExpiration(tokenExpiresDate)
-                .signWith(key, SignatureAlgorithm.HS256)
-                .compact();
 
-        return accessToken;
+        JwtBuilder jwtBuilder = Jwts.builder()
+                .setSubject("AccessToken")
+                .setExpiration(tokenExpiresDate)
+                .signWith(key, SignatureAlgorithm.HS256);
+
+        User user = userMapper.findUserByPhone(principalUser.getUsername());
+
+        if(user != null) {
+            return jwtBuilder.claim("username", user.getUsername()).compact();
+        }
+        user = userMapper.findUserByEmail(principalUser.getUsername());
+        if (user != null) {
+            return jwtBuilder.claim("username", user.getUsername()).compact();
+        }
+
+        return jwtBuilder.claim("username", principalUser.getUsername()).compact();
     }
 
     public Boolean validateToken(String token) {
