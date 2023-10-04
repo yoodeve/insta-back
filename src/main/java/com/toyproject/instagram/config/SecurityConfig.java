@@ -1,5 +1,6 @@
 package com.toyproject.instagram.config;
 
+import com.toyproject.instagram.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -8,11 +9,13 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @EnableWebSecurity  // 현재 내가 만든 시큐리티 설정 정책을 따르겠다.(기본설정이 존재함)
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final AuthenticationEntryPoint authenticationEntryPoint;
     // 컴포넌트가 아닌것 -> ioc에 등록됨.
     @Bean
@@ -31,6 +34,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .anyRequest() // 나머지 인증들은
                 .authenticated() // 인증필요
                 .and()
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling()
                 .authenticationEntryPoint(authenticationEntryPoint); // 인증에 관한 예외처리 전부 여기
 

@@ -18,18 +18,17 @@ public class PrincipalDetailService implements UserDetailsService {
 
     @Override // 로그인 핵심메소드
     public UserDetails loadUserByUsername(String phoneOrEmailOrUsername) throws UsernameNotFoundException {
-        System.out.println("여기 아이디 넘어옴?" + phoneOrEmailOrUsername);
         User user = userMapper.findUserByPhone(phoneOrEmailOrUsername);
         if (user != null){
-            return new PrincipalUser(user.getPhone(), user.getPassword());
+            return new PrincipalUser(user.getPhone(), user.getPassword(), user.getAuthorities());
         }
         user = userMapper.findUserByEmail(phoneOrEmailOrUsername);
         if(user != null) {
-            return new PrincipalUser(user.getEmail(), user.getPassword());
+            return new PrincipalUser(user.getEmail(), user.getPassword(), user.getAuthorities());
         }
         user = userMapper.findUserByUsername(phoneOrEmailOrUsername);
         if(user != null) {
-            return new PrincipalUser(user.getUsername(), user.getPassword());
+            return new PrincipalUser(user.getUsername(), user.getPassword(), user.getAuthorities());
         }
 
         throw new UsernameNotFoundException("잘못된정보");
