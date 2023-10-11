@@ -93,8 +93,6 @@ public class JwtTokenProvider {
                 .toString();
 
         PrincipalUser user = (PrincipalUser) principalDetailService.loadUserByUsername(username);
-
-        System.out.println("유저유저유저" + username);
 //        PrincipalUser principalUser = new PrincipalUser();
         authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
 

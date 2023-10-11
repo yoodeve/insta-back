@@ -4,7 +4,6 @@ import com.toyproject.instagram.entity.User;
 import com.toyproject.instagram.repository.UserMapper;
 import com.toyproject.instagram.security.PrincipalUser;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.parameters.P;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
